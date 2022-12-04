@@ -1,1 +1,6 @@
+# vim stuff:
+*.swp
+*~
+
+# zipz
 *.bz2
