@@ -3,7 +3,7 @@
 DEFAULTFILES:=lab2
 
 # folder to submit to
-SUBMISSIONPATH:=..
+SUBMISSIONPATH:=/home2/samba/karwowskij/unix/
 
 # 1 for ez compile,
 # 0 to see a few more warnings,
@@ -39,11 +39,18 @@ USECOLOR:=1
 MUNDANE_MESSAGES:=0
 EXTENSIONS_ALLOWED:=1
 
-# headers and paths to use
-KATLIBS:=errorHelpers easyCheck littleHelpers
-KATHDRPATH=katwikOpsys
-KATOBJPATH=katwikOpsys/obj
-KATSRCPATH=katwikOpsys/src
+# objects and paths to use
+OWNLIBS:=errorHelpers easyCheck littleHelpers randAndSleep
+OWNLIBPATH=.
+OWNLIBNAME=katwikOpsys
+OWNOBJFOLDER=obj
+OWNSRCFOLDER=src
+
+AUTOCLEANOWNOBJS:=0
+HDRPATH=$(OWNLIBPATH)/$(OWNLIBNAME)
+OBJPATH=$(HDRPATH)/$(OWNOBJFOLDER)
+SRCPATH=$(HDRPATH)/$(OWNSRCFOLDER)
+OWNOBJS=$(OWNLIBS:%=$(OBJPATH)/%.o)
 
 ifeq ($(CLEANONMAKE), 0)
 	SHOULDCLEAN =
@@ -90,7 +97,6 @@ endif
 SYSLIBS:=pthread rt
 DEBUGFLAGS:=-g3 -O0
 FFLAGS:=sanitize=address,undefined track-macro-expansion=0 no-omit-frame-pointer
-AUTOCLEANKATOBJS:=0
 
 PREDEFINES+=-D '_GNU_SOURCE=1'
 PREDEFINES+=-D '_POSIX_C_SOURCE=200809L'
@@ -99,7 +105,6 @@ PREDEFINES+=-D 'ERR_MULTIPROCESS=$(ERR_MULTIPROCESS)'
 PREDEFINES+=-D 'USE_RAND_R=$(USE_RAND_R)'
 PREDEFINES+=-D 'EXTENSIONS_ALLOWED=$(EXTENSIONS_ALLOWED)'
 
-KATOBJS=$(KATLIBS:%=$(KATOBJPATH)/%.o)
 COMPILEMSG="$(BLUE)=== $(GREEN)$<$(BLUE) -> $(GREEN)$@ $(BLUE)===$(RESET)\n"
 
 CC=gcc
@@ -110,24 +115,24 @@ LDFLAGS=$(SYSLIBS:%=-l%)
 
 all: $(SHOULDCLEAN) $(SHOULDCLEAR) $(DEFAULTFILES)
 
-$(KATOBJPATH)/%.o: $(KATSRCPATH)/%.c $(KATHDRPATH)/%.h
-	@mkdir -pv $(KATOBJPATH)
+$(OBJPATH)/%.o: $(SRCPATH)/%.c $(HDRPATH)/%.h
+	@mkdir -pv $(OBJPATH)
 	@printf $(COMPILEMSG)
-	@$(CC) $(KATHDRPATH:%=-I %) $(CFLAGS) $(PREDEFINES) -c $< -o $@ $(LDFLAGS)
+	@$(CC) $(HDRPATH:%=-I %) $(CFLAGS) $(PREDEFINES) -c $< -o $@ $(LDFLAGS)
 
-$(DEFAULTFILES): $(DEFAULTFILES:%=%.c) $(KATOBJS)
-%: %.c $(KATOBJS)
+$(DEFAULTFILES): $(DEFAULTFILES:%=%.c) $(OWNOBJS)
+%: %.c $(OWNOBJS)
 	@printf $(COMPILEMSG)
-	-@$(CC) $(KATHDRPATH:%=-I %) $(CFLAGS) $(PREDEFINES) $(KATOBJS) $< -o $@ $(LDFLAGS)
+	-@$(CC) $(HDRPATH:%=-I %) $(CFLAGS) $(PREDEFINES) $(OWNOBJS) $< -o $@ $(LDFLAGS)
 
 clean:
 ifeq ($(AUTOCLEANMSGQUEUES), 1)
 	@printf "$(BLUE)Trying to remove * (message queues) from $(GREEN)$(IPCMSGQPATH)$(RESET)\n"
 	-@cd $(IPCMSGQPATH); rm -fv *
 endif
-ifeq ($(AUTOCLEANKATOBJS), 1)
-	@printf "$(BLUE)Trying to remove $(GREEN)*.o$(RESET) from $(GREEN)$(KATOBJPATH)$(RESET)\n"
-	-@cd $(KATOBJPATH); rm -fv *.o
+ifeq ($(AUTOCLEANOWNOBJS), 1)
+	@printf "$(BLUE)Trying to remove $(GREEN)*.o$(RESET) from $(GREEN)$(OBJPATH)$(RESET)\n"
+	-@cd $(OBJPATH); rm -fv *.o
 endif
 	@printf "$(BLUE)Trying to remove $(GREEN)$(DEFAULTFILES)$(GREEN)$(RESET)\n"
 	-@rm -fv $(DEFAULTFILES)
@@ -137,10 +142,10 @@ clear:
 
 zip: $(DEFAULTFILES:%=%.c)
 	-@rm -v $(USER).tar.bz2
-	@mkdir -pv __submission_tmp__/katwikOpsys/src
+	@mkdir -pv __submission_tmp__/$(OWNLIBNAME)/$(OWNSRCFOLDER)
 	-@cp -v makefile $(DEFAULTFILES:%=%.c) $(DEFAULTFILES)  __submission_tmp__
-	-@cp -v $(KATHDRPATH)/*.h __submission_tmp__/katwikOpsys
-	-@cp -v $(KATSRCPATH)/*.c __submission_tmp__/katwikOpsys/src
+	-@cp -v $(HDRPATH)/*.h __submission_tmp__/$(OWNLIBNAME)
+	-@cp -v $(SRCPATH)/*.c __submission_tmp__/$(OWNLIBNAME)/$(OWNSRCFOLDER)
 
 	@$(SHOULDCLEAR)
 	@printf "$(BLUE)=== Creating $(GREEN)$(USER).tar.bz2$(BLUE) ===$(RESET)\n"
