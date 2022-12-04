@@ -13,6 +13,7 @@ typedef struct childInfo_t {
 	sigset_t* oldMask;
 } childInfo_t;
 
+#define MAX_STR 50
 void childFunc(childInfo_t* childInfo) {
 	srand(time(NULL) * getpid() + childInfo->childNum);
 	myRandSleep(0.5, 3);
@@ -21,6 +22,13 @@ void childFunc(childInfo_t* childInfo) {
 	if (childInfo->childNum == childInfo->childCount) {
 		kill_(0, SIGUSR1);
 	}
+
+	// make file
+	char name[MAX_STR + 1];
+	snprintf(name, MAX_STR, "%d-%d.lol", getpid(), childInfo->childNum);
+	int outputFD = open_(name, O_WRONLY | O_CREAT | O_TRUNC | O_APPEND, 0664);
+	write_(outputFD, name, strlen(name) + 1);
+	close_(outputFD);
 
 	while (last_signal != SIGUSR1) {
 		sigsuspend(childInfo->oldMask);
