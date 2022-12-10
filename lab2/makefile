@@ -1,9 +1,9 @@
 # base filenames go here
 # separate with spaces
-DEFAULTFILES:=lab2
+DEFAULTFILES:=lab2Week1 lab2Prep
 
 # folder to submit to
-SUBMISSIONPATH:=/home2/samba/karwowskij/unix/
+SUBMISSIONPATH:=/home2/samba/karwowskij/unix
 
 # 1 for ez compile,
 # 0 to see a few more warnings,
@@ -12,7 +12,7 @@ FEELINGLAZY:=-1
 
 # 1 for multi-process programs
 # 0 for single process programs
-ERR_MULTIPROCESS:=0
+ERR_MULTIPROCESS:=1
 
 # 1 to auto clear msg queues
 # 0 to not
@@ -40,7 +40,7 @@ MUNDANE_MESSAGES:=0
 EXTENSIONS_ALLOWED:=1
 
 # objects and paths to use
-OWNLIBS:=errorHelpers easyCheck littleHelpers randAndSleep
+OWNLIBS:=errorHelpers easyCheck littleHelpers randAndSleep myList
 OWNLIBPATH=.
 OWNLIBNAME=katwikOpsys
 OWNOBJFOLDER=obj
