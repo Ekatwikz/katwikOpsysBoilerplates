@@ -15,7 +15,7 @@ using low-level POSIX IO.
 1. 4p)
 Parent process starts child processes.  
 Child processes print their `PID` and `k` values to `stdout`, then exit.  
-Parent awaits children.
+Parent process awaits all children.
 2. 5p)
 Child processes send, receive and count signals as described in the task.  
 On expiration, child processes print their `k` and `i` values to `stdout`.
@@ -26,4 +26,3 @@ to `stdout` _without sorting_.
 _Results are sorted_ and written to `out.txt`.
 
 ###### (Week 1 Group)
-
