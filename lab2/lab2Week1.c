@@ -1,6 +1,6 @@
 #include "./katwikOpsys/katwikOpsys.h"
 
-#define RANDOM_LIMIT 2
+#define RANDOM_LIMIT 10
 
 volatile sig_atomic_t sigCount = 0;
 void basic_handler(int sig) {
@@ -44,7 +44,7 @@ void childFunc(childInfo_t* childInfo) {
 		kill_(0, SIGUSR1);
 	}
 
-	while (false && alarmCount < RANDOM_LIMIT) {
+	while (alarmCount < RANDOM_LIMIT) {
 		alarm(1);
 		sigsuspend(childInfo->mask);
 	}
@@ -116,7 +116,8 @@ int main(int argc, char** argv) {
 		if (errno == ECHILD) {
 			break;
 		} else {
-			DBGprintf("Child returned: %d:%d\n", WEXITSTATUS(wstatus) >> 4, WEXITSTATUS(wstatus) & 0xF);
+			DBGprintf("Child returned: %d:%d\n",
+				WEXITSTATUS(wstatus) >> 4, WEXITSTATUS(wstatus) & 0xF);
 			insertValLast(vals, wstatus);
 		}
 	}
@@ -127,7 +128,8 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < n; ++i) {
 		int wstatus = popFirstVal(vals);
 		char outStr[MAX_STR + 1] = { 0 };
-		snprintf(outStr, MAX_STR, "k:%d i:%d\n", WEXITSTATUS(wstatus) >> 4, WEXITSTATUS(wstatus) & 0xF);
+		snprintf(outStr, MAX_STR, "k:%d i:%d\n",
+			WEXITSTATUS(wstatus) >> 4, WEXITSTATUS(wstatus) & 0xF);
 		write_(outputFD, outStr, strlen(outStr));
 	}
 
