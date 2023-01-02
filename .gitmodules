@@ -1,3 +1,6 @@
 [submodule "lab2/katwikOpsys"]
 	path = lab2/katwikOpsys
 	url = https://github.com/Ekatwikz/katwikOpsys
+[submodule "lab3/katwikOpsys"]
+	path = lab3/katwikOpsys
+	url = https://github.com/Ekatwikz/katwikOpsys
