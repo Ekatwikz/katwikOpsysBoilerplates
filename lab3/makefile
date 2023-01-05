@@ -1,6 +1,6 @@
 # base filenames go here
 # separate with spaces
-DEFAULTFILES:=lab3Prep oldWeek2Lab3
+DEFAULTFILES:=lab3Week1 lab3Prep lab3Week2Ancient
 
 # folder to submit to
 SUBMISSIONPATH:=/home2/samba/karwowskij/unix
