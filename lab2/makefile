@@ -108,10 +108,10 @@ PREDEFINES+=-D 'EXTENSIONS_ALLOWED=$(EXTENSIONS_ALLOWED)'
 COMPILEMSG="$(BLUE)=== $(GREEN)$<$(BLUE) -> $(GREEN)$@ $(BLUE)===$(RESET)\n"
 
 CC=gcc
-CFLAGS=$(PREPROCESS) $(ASSEMBLE) $(WARNINGS:%=-W%) $(FFLAGS:%=-f%) $(DEBUGFLAGS)
+CFLAGS=$(WARNINGS:%=-W%) $(FFLAGS:%=-f%) $(DEBUGFLAGS)
 LDFLAGS=$(SYSLIBS:%=-l%)
 
-.PHONY: clean clear all zip submit
+.PHONY: clean clear all zip_partial zip_full submit
 
 all: $(SHOULDCLEAN) $(SHOULDCLEAR) $(DEFAULTFILES)
 
@@ -140,20 +140,32 @@ endif
 clear:
 	@clear
 
-zip: $(DEFAULTFILES:%=%.c)
+define setup_partial_zip =
 	-@rm -v $(USER).tar.bz2
-	@mkdir -pv __submission_tmp__/$(OWNLIBNAME)/$(OWNSRCFOLDER)
-	-@cp -v makefile $(DEFAULTFILES:%=%.c) $(DEFAULTFILES)  __submission_tmp__
-	-@cp -v $(HDRPATH)/*.h __submission_tmp__/$(OWNLIBNAME)
-	-@cp -v $(SRCPATH)/*.c __submission_tmp__/$(OWNLIBNAME)/$(OWNSRCFOLDER)
+	@mkdir -pv __zip_tmp__
+	-@cp -v makefile $(DEFAULTFILES:%=%.c) $(DEFAULTFILES)  __zip_tmp__
+endef
 
+define finish_zip =
 	@$(SHOULDCLEAR)
 	@printf "$(BLUE)=== Creating $(GREEN)$(USER).tar.bz2$(BLUE) ===$(RESET)\n"
-	@tar --create --bzip2 --file=$(USER).tar.bz2 -C __submission_tmp__ .
-	@rm -rf __submission_tmp__
+	@tar --create --bzip2 --file=$(USER).tar.bz2 -C __zip_tmp__ .
+	@rm -rf __zip_tmp__
 	@tar --list --bzip2 --file=$(USER).tar.bz2
+endef
 
-submit: zip
+zip_partial: $(DEFAULTFILES:%=%.c)
+	$(setup_partial_zip)
+	$(finish_zip)
+
+zip_full: $(DEFAULTFILES:%=%.c)
+	$(setup_partial_zip)
+	@mkdir -pv __zip_tmp__/$(OWNLIBNAME)/$(OWNSRCFOLDER)
+	-@cp -v $(HDRPATH)/*.h __zip_tmp__/$(OWNLIBNAME)
+	-@cp -v $(SRCPATH)/*.c __zip_tmp__/$(OWNLIBNAME)/$(OWNSRCFOLDER)
+	$(finish_zip)
+
+submit: clean zip_partial
 	@printf "$(BLUE)=== Submitting $(GREEN)$(USER).tar.bz2$(BLUE) to $(GREEN)$(SUBMISSIONPATH)$(BLUE) ===$(RESET)\n"
 	@cp $(USER).tar.bz2 $(SUBMISSIONPATH)
 	@ls -l $(SUBMISSIONPATH)/$(USER).tar.bz2
