@@ -111,19 +111,9 @@ CC=gcc
 CFLAGS=$(WARNINGS:%=-W%) $(FFLAGS:%=-f%) $(DEBUGFLAGS)
 LDFLAGS=$(SYSLIBS:%=-l%)
 
-.PHONY: clean clear all zip_partial zip_full submit
+.PHONY: clean clear clean_and_clear all zip_partial zip_full submit
 
-all: $(SHOULDCLEAN) $(SHOULDCLEAR) $(DEFAULTFILES)
-
-$(OBJPATH)/%.o: $(SRCPATH)/%.c $(HDRPATH)/%.h
-	@mkdir -pv $(OBJPATH)
-	@printf $(COMPILEMSG)
-	@$(CC) $(HDRPATH:%=-I %) $(CFLAGS) $(PREDEFINES) -c $< -o $@ $(LDFLAGS)
-
-$(DEFAULTFILES): $(DEFAULTFILES:%=%.c) $(OWNOBJS)
-%: %.c $(OWNOBJS)
-	@printf $(COMPILEMSG)
-	-@$(CC) $(HDRPATH:%=-I %) $(CFLAGS) $(PREDEFINES) $(OWNOBJS) $< -o $@ $(LDFLAGS)
+all: $(DEFAULTFILES)
 
 clean:
 ifeq ($(AUTOCLEANMSGQUEUES), 1)
@@ -139,6 +129,19 @@ endif
 
 clear:
 	@clear
+
+clean_and_clear: $(SHOULDCLEAN)
+	@$(SHOULDCLEAR)
+
+$(OBJPATH)/%.o: $(SRCPATH)/%.c $(HDRPATH)/%.h
+	@mkdir -pv $(OBJPATH)
+	@printf $(COMPILEMSG)
+	@$(CC) $(HDRPATH:%=-I %) $(CFLAGS) $(PREDEFINES) -c $< -o $@ $(LDFLAGS)
+
+$(DEFAULTFILES): $(DEFAULTFILES:%=%.c) $(OWNOBJS) clean_and_clear
+%: %.c $(OWNOBJS) $(SHOULDCLEAR)
+	@printf $(COMPILEMSG)
+	-@$(CC) $(HDRPATH:%=-I %) $(CFLAGS) $(PREDEFINES) $(OWNOBJS) $< -o $@ $(LDFLAGS)
 
 define setup_partial_zip =
 	-@rm -v $(USER).tar.bz2
