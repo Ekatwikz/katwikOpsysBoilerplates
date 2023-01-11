@@ -69,7 +69,7 @@ void spawnThreads(threadSpawnInfo_t* threadSpawnInfo) {
 			.t = threadSpawnInfo->t,
 			.seed = rand(),
 			.mutex = threadSpawnInfo->mutexes // for now
-		 };
+		};
 
 		threadSpawnInfo->threadArgs[i] = args;
 		pthread_create_(&threadSpawnInfo->threads[i], &threadAttr, &threadFunc, &threadSpawnInfo->threadArgs[i]);
@@ -120,6 +120,7 @@ int main(int argc, char** argv) {
 	for (int i = 0; i < n; ++i) {
 		pthread_cancel_(threadSpawnInfo.threads[i]);
 		pthread_join_(threadSpawnInfo.threads[i], NULL);
+		DBGprintf("Joined %d\n", i + 1);
 	}
 
 	free_(threadSpawnInfo.threads);
